@@ -19,6 +19,90 @@ void espacio(){ //Complejidad Computacional: O(1), es una ejecución lineal en e
     cout << endl;
 }
 
+//Implementación de Búsqueda en Anchura
+bool bfs(vector<vector<int>>& rMatriz, int origen, int destino, vector<int>& parentezco){ //Complejidad Computacional: O(VE^2) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+
+    int vertices;
+    queue<int> cola;
+
+    vertices = rMatriz.size();
+
+    vector<bool> visitados(vertices, false);
+
+    cola.push(origen);
+    visitados[origen] = true;
+    parentezco[origen] = -1;
+
+    while (!cola.empty()){
+        int u;
+        u = cola.front();
+        cola.pop();
+
+        for (int v = 0; v < vertices; v++){
+            if (visitados[v] == false && rMatriz[u][v] > 0){
+                if (v == destino){
+                    parentezco[v] = u;
+                    return true;
+                }
+                cola.push(v);
+                parentezco[v] = u;
+                visitados[v] = true;
+            }
+        }
+
+    }
+
+    return false;
+
+}
+
+//Implementación del Algoritmo Ford-Fulkerson
+void fordFulkerson(vector<vector<int>>& matriz, int origen, int destino){ //Complejidad Computacional: O(EV^3) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+
+    int u;
+    int v;
+    int vertices;
+    int flujoMaximo;
+    
+    vertices = matriz.size();
+
+    vector<vector<int>> rMatriz(vertices,vector<int>(vertices));
+    vector<int> parentezco(vertices);
+
+    for (u = 0; u < vertices; u++){
+        for (v = 0; v < vertices; v++){
+            rMatriz[u][v] = matriz[u][v];
+        }
+    }
+
+    flujoMaximo = 0;
+
+    while(bfs(rMatriz,0,vertices-1,parentezco)){ //Complejidad Computacional: O(VE^2) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+
+        int trayectoriaDeFlujo;
+        trayectoriaDeFlujo = INT32_MAX;
+
+        for (v = destino; v!= origen; v = parentezco[v]){
+            u = parentezco[v];
+            trayectoriaDeFlujo = min(trayectoriaDeFlujo,rMatriz[u][v]);
+        }
+
+        for (v = destino; v != origen; v = parentezco[v]){
+            u = parentezco[v];
+            rMatriz[u][v] -= trayectoriaDeFlujo;
+            rMatriz[v][u] += trayectoriaDeFlujo;
+        }
+
+        flujoMaximo += trayectoriaDeFlujo;
+
+    }
+
+    espacio();
+    cout << "Flujo Maximo: " << flujoMaximo << endl;
+    espacio();
+
+}
+
 //Punto global que funciona como auxiliar para realizar un ordenamiento.
 Punto punto0;
 
@@ -217,6 +301,7 @@ int main() {
     cout << "--- Algoritmo de Kruskal ---" << endl;
     cout << "--- TSP (Traveling Salesman Problem) ---" << endl;
     cout << "--- Algoritmo de Ford-Fulkerson ---" << endl;
+	fordFulkerson(flujos,0,n-1);
     cout << "--- Convex Hull - Escaneo de Graham ---" << endl;
     cascaraConvexaGraham(centrales,n);
 
