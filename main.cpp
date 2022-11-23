@@ -1,10 +1,105 @@
 //Inclusión de librerías.
-#include <bits/stdc++.h>
+// #include <bits/stdc++.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <queue>
 #include <stack>
+
+// --------------------------------------------------
+
+#define edge std::pair<int, int>
+
+// Constructor from an adjacency matrix.
+// Time complexity: O(v^2)
+std::vector<std::pair<int, edge> > edges(std::vector< std::vector<int> > matrix) {
+    std::vector<std::pair<int, edge> > edges;
+    int numV = matrix.size();
+    for (int i = 0; i < numV; i++) {
+        for (int j = 0; j < numV; j++) {
+            if (matrix[i][j] != 0) {
+                edges.push_back(std::make_pair(matrix[i][j], edge(i, j)));
+            }
+        }
+    }
+    return edges;
+}
+
+// Finds the set of a vertex.
+// Time complexity: O(1)
+int findSet(int i, std::vector<int> parent) {
+    // Recursive function to find the parent of a node.
+
+    // Base case: if the node is its own parent, return it.
+    if (i == parent[i]) {
+        return i;
+    } else {
+    // Recursive case: if the node is not its own parent, find the parent of the parent.
+        return findSet(parent[i], parent);
+    }
+}
+
+// Kruskal's algorithm for finding the minimum spanning tree (MST).
+// Time complexity: O(E log E)
+std::vector<std::pair<int, edge> > kruskal(std::vector<std::pair<int, edge> > edges, int numV) {
+    std::vector<int> parent;
+    parent.resize(numV);
+    for (int i = 0; i < numV; i++) {
+        parent[i] = i;
+    }
+    std::vector<std::pair<int, edge> > mst;
+    int i, setV1, setV2;
+    std::sort(edges.begin(), edges.end());  // Sort edges by weight in ascending order.
+    for (i = 0; i < edges.size(); i++) { // Iterate through all the edges.
+        // edges[i][0] = weight
+        // edges[i][1] = edge
+        setV1 = findSet(edges[i].second.first, parent);
+        setV2 = findSet(edges[i].second.second, parent);
+
+        // If there are no cycles (the nodes are not in the same set), add the edge to the MST.
+        if (setV1 != setV2) {
+            mst.push_back(edges[i]);  // Add to tree.
+            parent[setV1] = parent[setV2]; // Link the nodes' sets.
+        }
+    }
+    return mst;
+}
+
+void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
+    // matrix of the MST
+    std::vector<std::vector<int> > matrix(numV, std::vector<int>());
+    for (int i = 0; i < mst.size(); i++) {
+        edge e = mst[i].second;
+        matrix[e.first].push_back(e.second);
+        matrix[e.second].push_back(e.first);
+    }
+
+    int current = 0;
+    while (matrix[current].size() != 1 && current < matrix.size()) {
+        current++;
+    }
+
+    // Print the matrix.
+    std::cout << "(";
+    int previous;
+    for (int i = 0; i < matrix.size() - 1; i++) {
+        std::cout << current << ", ";
+        int next = matrix[current][0] != previous ? matrix[current][0] : matrix[current][1]; 
+        previous = current;
+        current = next;
+    }
+
+    std::cout << current << ")" << std::endl;
+
+    // int cost = 0;
+    // for (int i = 0; i < mst.size(); i++) {
+    //     cost += mst[i].first;
+    // }
+    // std::cout << "Cost: " << cost << std::endl;
+}
+
+
+// --------------------------------------------------
 
 //Ajuste a estandar.
 using namespace std;
@@ -299,6 +394,10 @@ int main() {
 
     cout << "----- OUTPUT: -----" << endl;
     cout << "--- Algoritmo de Kruskal ---" << endl;
+    std::vector<std::pair<int, edge> > graph = edges(distancias);
+    std::vector<std::pair<int, edge> > mst = kruskal(graph, n);
+    printMST(mst, n);
+    
     cout << "--- TSP (Traveling Salesman Problem) ---" << endl;
     cout << "--- Algoritmo de Ford-Fulkerson ---" << endl;
 	fordFulkerson(flujos,0,n-1);
