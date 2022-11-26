@@ -101,6 +101,51 @@ void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
 
 // --------------------------------------------------
 
+int pathCost(std::vector<int> set, int end, std::vector< std::vector<int> > costs) {
+    int size = set.size();
+    // If the set has only two elements, return the distance form 0 to the end element.
+    if (size == 2) {
+        return costs[0][end];
+    }
+    // Otherwise, find the minimum cost of the set without the end element and every element of the set plus the distance from the element to the first node.
+    int minCost = 0;
+
+    // Remove the end element from the set.
+    std::vector<int> newSet;
+    for (int i = 0; i < size; i++) {
+        if (set[i] != end) {
+            newSet.push_back(set[i]);
+        }
+    }
+
+    for (int i = 1; i < size - 1; i++) {
+        int cost = pathCost(newSet, newSet[i], costs) + costs[newSet[i]][end];
+        if (minCost == 0 || cost < minCost) {
+            minCost = cost;
+        }
+    }
+    return minCost;
+}
+
+int tsp(std::vector< std::vector<int> > matrix) {
+    std::vector<int> cycleCosts;
+    std::vector<int> set;
+    for (int i = 0; i < matrix.size(); i++) {
+        set.push_back(i);
+    }
+    for (int i = 1; i < matrix.size(); i++) {
+        // Find minimum cost path starting from vertex 1, passing through every node once and ending at vertex i.
+        // The cost of the Hamiltonian cycle is the sum of the minimum cost path and the cost of the edge from the last node to the first node.
+        int totalCost = pathCost(set, i, matrix) + matrix[i][0];
+        cycleCosts.push_back(totalCost);
+    }
+    // Find the minimum cost Hamiltonian cycle.
+    sort(cycleCosts.begin(), cycleCosts.end());
+    return cycleCosts[0];
+}
+
+// --------------------------------------------------
+
 //Ajuste a estandar.
 using namespace std;
 
@@ -399,6 +444,8 @@ int main() {
     printMST(mst, n);
     
     cout << "--- TSP (Traveling Salesman Problem) ---" << endl;
+    int minHamilton = tsp(distancias);
+    std::cout << "Costo Minimo: " << minHamilton << std::endl;
     cout << "--- Algoritmo de Ford-Fulkerson ---" << endl;
 	fordFulkerson(flujos,0,n-1);
     cout << "--- Convex Hull - Escaneo de Graham ---" << endl;
