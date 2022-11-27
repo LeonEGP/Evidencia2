@@ -1,17 +1,20 @@
-//Inclusión de librerías.
-// #include <bits/stdc++.h>
+// Programa que: Implementa los algoritmos solución para la Situación Problema de la Actividad Integradora 2.
+// Programadores: León Emiliano García Pérez [A00573074], Carla Morales López [A01639225], Óscar Jahir Valdés Caballero [A01638923].
+// Fecha de entrega: Domingo 27 de Noviembre de 2022.
+
+// ----------------------------------- INCLUSIÓN DE LIBRERÍAS -------------------------------------
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <queue>
 #include <stack>
 
-// --------------------------------------------------
+// ----------------------------------- KRUSKAL -------------------------------------
 
 #define edge std::pair<int, int>
 
 // Constructor from an adjacency matrix.
-// Time complexity: O(v^2)
+// Time complexity: O(v^2) for V: number of vertices.
 std::vector<std::pair<int, edge> > edges(std::vector< std::vector<int> > matrix) {
     std::vector<std::pair<int, edge> > edges;
     int numV = matrix.size();
@@ -40,7 +43,7 @@ int findSet(int i, std::vector<int> parent) {
 }
 
 // Kruskal's algorithm for finding the minimum spanning tree (MST).
-// Time complexity: O(E log E)
+// Time complexity: O(E log E) for E: number of edges.
 std::vector<std::pair<int, edge> > kruskal(std::vector<std::pair<int, edge> > edges, int numV) {
     std::vector<int> parent;
     parent.resize(numV);
@@ -65,6 +68,8 @@ std::vector<std::pair<int, edge> > kruskal(std::vector<std::pair<int, edge> > ed
     return mst;
 }
 
+// This function prints the output of the MST.
+// Time complexity: O(V) for V: number of vertices.
 void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
     // matrix of the MST
     std::vector<std::vector<int> > matrix(numV, std::vector<int>());
@@ -74,12 +79,13 @@ void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
         matrix[e.second].push_back(e.first);
     }
 
+    // Find a starting node.
     int current = 0;
     while (matrix[current].size() != 1 && current < matrix.size()) {
         current++;
     }
 
-    // Print the matrix.
+    // Print the MST.
     std::cout << "(";
     int previous;
     for (int i = 0; i < matrix.size() - 1; i++) {
@@ -91,6 +97,7 @@ void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
 
     std::cout << char(current + 65) << ")" << std::endl;
 
+    // Print the cost.
     int cost = 0;
     for (int i = 0; i < mst.size(); i++) {
         cost += mst[i].first;
@@ -99,8 +106,10 @@ void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
 }
 
 
-// --------------------------------------------------
+// ----------------------------------- TSP -------------------------------------
 
+// This function returns the minimum cost (and the route) of a path that visits all given nodes exactly once, starting at 0, and ending at the given node.
+// Time complexity: O(n * 2^n) for n: number of nodes.
 std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector< std::vector<int> > costs, std::vector<std::pair<int, std::string>> &bitmasks) {
     int size = set.size();
     std::string path;
@@ -126,10 +135,12 @@ std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector<
         }
     }
 
+    // Search the cost in the Dynamic Programming table. Return it if it exists.
     if (bitmasks[mask].first != 0) {
         return bitmasks[mask];
     }
-    
+
+    // If the result has not been calculated, calculate it.
     for (int i = 1; i < newSet.size(); i++) {
         std::pair<int, std::string> subPath = pathCost(newSet, newSet[i], costs, bitmasks);
         int cost = subPath.first + costs[newSet[i]][end];
@@ -140,10 +151,15 @@ std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector<
             path += " -> ";
         }
     }
+
+    // Save the result in the Dynamic Programming table.
     bitmasks[mask] = std::make_pair(minCost, path);
+    
     return std::make_pair(minCost, path);
 }
 
+// This function returns the minimum cost (and the route) of a cycle that visits all given nodes exactly once.
+// Time complexity: O(n^2 * 2^n) for n: number of nodes.
 std::pair<int, std::string> tsp(std::vector< std::vector<int> > matrix) {
     std::vector<std::pair<int, std::string> > cycleCosts;
     std::vector<int> set;
@@ -167,23 +183,24 @@ std::pair<int, std::string> tsp(std::vector< std::vector<int> > matrix) {
     return cycleCosts[0];
 }
 
-// --------------------------------------------------
+// -------------------------------------------------- AJUSTE A ESTANDAR -------------------------------------------------
 
 //Ajuste a estandar.
 using namespace std;
 
-//Definición de estrucutra Punto.
-struct Punto {
-    int x;
-    int y;
-};
+// -------------------------------------------------- FUNCIONES GENERALES -------------------------------------------------
 
-void espacio(){ //Complejidad Computacional: O(1), es una ejecución lineal en el contenido de la función.
+// Función que imprime en consola un salto de línea, no recibe parámetros y no tiene valor de retorno.
+// Complejidad Computacional: O(1)
+void espacio() { 
     cout << endl;
 }
 
-//Implementación de Búsqueda en Anchura
-bool bfs(vector<vector<int>>& rMatriz, int origen, int destino, vector<int>& parentezco){ //Complejidad Computacional: O(VE^2) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+// -------------------------------------------------- FORD-FULKERSON ALGORITHM -------------------------------------------------
+
+//Implementación de Búsqueda en Anchura, recibe como parámetro un vector de vectores de enteros referenciado, que funge como matríz, un entero para el nodo origen, un entero para el nodo destino, y un vector de enteros referenciado con el parentezco.
+//Complejidad Computacional: O(VE^2) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+bool bfs(vector<vector<int>>& rMatriz, int origen, int destino, vector<int>& parentezco){ 
 
     int vertices;
     queue<int> cola;
@@ -216,11 +233,11 @@ bool bfs(vector<vector<int>>& rMatriz, int origen, int destino, vector<int>& par
     }
 
     return false;
-
 }
 
-//Implementación del Algoritmo Ford-Fulkerson
-void fordFulkerson(vector<vector<int>>& matriz, int origen, int destino){ //Complejidad Computacional: O(EV^3) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+// Implementación del Algoritmo Ford-Fulkerson,  recibe como parámetro un vector de vectores de enteros referenciado, que funge como matríz, un entero para el nodo origen y un entero para el nodo destino.
+// Complejidad Computacional: O(EV^3) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+void fordFulkerson(vector<vector<int>>& matriz, int origen, int destino){ 
 
     int u;
     int v;
@@ -240,7 +257,8 @@ void fordFulkerson(vector<vector<int>>& matriz, int origen, int destino){ //Comp
 
     flujoMaximo = 0;
 
-    while(bfs(rMatriz,0,vertices-1,parentezco)){ //Complejidad Computacional: O(VE^2) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+    // Complejidad Computacional: O(VE^2) Siendo V la cantidad de Vértices y E la cantidad de Aristas.
+    while(bfs(rMatriz,0,vertices-1,parentezco)){ 
 
         int trayectoriaDeFlujo;
         trayectoriaDeFlujo = INT32_MAX;
@@ -266,10 +284,21 @@ void fordFulkerson(vector<vector<int>>& matriz, int origen, int destino){ //Comp
 
 }
 
+// -------------------------------------------------- CONVEX HULL - GRAHAM SCAN -------------------------------------------------
+
+//Definición de estrucutra Punto. Poseé un entero x y un entero y.
+struct Punto {
+    int x;
+    int y;
+};
+
 //Punto global que funciona como auxiliar para realizar un ordenamiento.
 Punto punto0;
 
-Punto siguientoAlTop(stack<Punto>& pila) { //Complejidad Computacional: O(1), es una ejecución lineal en el contenido de la función.
+// Función que ayuda a encontrar el punto siguiente al top de un stack, recibe un stack referenciado de puntos y retorno el Punto siguiente al Top.
+// Complejidad Computacional: O(1)
+Punto siguientoAlTop(stack<Punto>& pila) { 
+
     Punto punto;
 	Punto resultado;
 
@@ -281,7 +310,9 @@ Punto siguientoAlTop(stack<Punto>& pila) { //Complejidad Computacional: O(1), es
 	return resultado; 
 }
 
-void intercambio(Punto& punto1, Punto& punto2) { //Complejidad Computacional: O(1), es una ejecución lineal en el contenido de la función.
+// Función que intercambia dos puntos, recibe la referencia a dos puntos, no tiene valor de retorno.
+//Complejidad Computacional: O(1)
+void intercambio(Punto& punto1, Punto& punto2) {
 
     Punto auxiliar;
 
@@ -290,11 +321,15 @@ void intercambio(Punto& punto1, Punto& punto2) { //Complejidad Computacional: O(
 	punto2 = auxiliar;
 }
 
-int distanciaCuadrada(Punto punto1, Punto punto2) { //Complejidad Computacional: O(1), es una ejecución lineal en el contenido de la función.
+// Función que calcula el cuadrado de la distancia entre dos puntos, recibe como parámetro los dos puntos, y retorna el entero de la distancia cuadrada.
+//Complejidad Computacional: O(1)
+int distanciaCuadrada(Punto punto1, Punto punto2) {
     return (punto1.x - punto2.x) * (punto1.x - punto2.x) + (punto1.y - punto2.y) * (punto1.y - punto2.y);
 }
 
-int direccion(Punto p, Punto q, Punto r) { //Complejidad Computacional: O(1), es una ejecución lineal en el contenido de la función.
+// Función que determina el sentido dados tres puntos, recibe los tres puntos y retorna un 0 si es Collinear, 1 si es Dextrógiro (Al sentido del Reloj), 2 si es Levógiro ( Al sentido ContraReloj).
+// Complejidad Computacional: O(1)
+int direccion(Punto p, Punto q, Punto r) { 
     
     int valor;
 
@@ -311,7 +346,9 @@ int direccion(Punto p, Punto q, Punto r) { //Complejidad Computacional: O(1), es
 	}
 }
 
-int comparar(const void* voidPunto1, const void* voidPunto2) { //Complejidad Computacional: O(1), es una ejecución lineal en el contenido de la función.
+// Función auxiliar de comparación para ordenar un arreglo de puntos respecto al primero, recibe dos apuntadores a constantes void y retorna -1 o 1 según sea el caso.
+// Complejidad Computacional: O(1)
+int comparar(const void* voidPunto1, const void* voidPunto2) { 
     
     int sentido;
 	Punto* punto1;
@@ -337,7 +374,10 @@ int comparar(const void* voidPunto1, const void* voidPunto2) { //Complejidad Com
 	}
 }
 
-void cascaraConvexaGraham(vector<Punto>& puntos, int n) { //Complejidad Computacional: O(nlogn), siendo n la cantidad de puntos.
+// Función que imprime la cáscara conveza dado un arreglo de puntos, recibe además la cantidad n de puntos, no tiene valor de retorno.
+// Complejidad Computacional: O(n*log(n)), siendo n la cantidad de puntos.
+void cascaraConvexaGraham(vector<Punto>& puntos, int n) { 
+
     int yMinima;
 	int minimo;
 	int tamanio;
@@ -347,7 +387,8 @@ void cascaraConvexaGraham(vector<Punto>& puntos, int n) { //Complejidad Computac
 	yMinima = puntos[0].y;
 	minimo = 0;
 
-	for (int i = 1; i < n; i++) { //Complejidad Computacional: O(n), siendo n la cantidad de puntos.
+    // Complejidad Computacional: O(n), siendo n la cantidad de puntos.
+    for (int i = 1; i < n; i++) { 
 
 		int y;
 		y = puntos[i].y;
@@ -360,10 +401,14 @@ void cascaraConvexaGraham(vector<Punto>& puntos, int n) { //Complejidad Computac
 
 	intercambio(puntos[0], puntos[minimo]);
 	punto0 = puntos[0];
-	qsort(&puntos[1], n - 1, sizeof(Punto), comparar); //Complejidad Computacional: O(nlogn), siendo n la cantidad de puntos.
+
+    // Complejidad Computacional: O(n*log(n)), siendo n la cantidad de puntos.
+    qsort(&puntos[1], n - 1, sizeof(Punto), comparar); 
+
 	tamanio = 1;
 
-	for (int i = 1; i < n; i++) { //Complejidad Computacional: O(n), siendo n la cantidad de puntos.
+    // Complejidad Computacional: O(n), siendo n la cantidad de puntos.
+    for (int i = 1; i < n; i++) { 
 
 		while (i < n - 1 && direccion(punto0, puntos[i], puntos[i + 1]) == 0) {
 			i++;
@@ -385,7 +430,8 @@ void cascaraConvexaGraham(vector<Punto>& puntos, int n) { //Complejidad Computac
 	pilaResultante.push(puntos[1]);
 	pilaResultante.push(puntos[2]);
 
-	for (int i = 3; i < tamanio; i++) { //Complejidad Computacional: O(m), siendo m el tamaño del arreglo modificado.
+    //Complejidad Computacional: O(m), siendo m el tamaño del arreglo modificado.
+	for (int i = 3; i < tamanio; i++) { 
 
 		while (pilaResultante.size() > 1 && direccion(siguientoAlTop(pilaResultante), pilaResultante.top(), puntos[i]) != 2) {
 			pilaResultante.pop();
@@ -401,15 +447,20 @@ void cascaraConvexaGraham(vector<Punto>& puntos, int n) { //Complejidad Computac
 	}
 
 	espacio();
+    
+    //Los resultados se brindan en orden inverso a las manecillas del reloj.
 	//cout << "POLIGONO CONVEXO MAS PEQUENIO: [PUNTOS DADOS EN SENTIDO CONTRARIO A LAS MANECILLAS DEL RELOJ]" << endl;
 
-	for (int i = resultado.size() - 1; i >= 0; i--) { //Complejidad Computacional: O(v), siendo v el tamaño del vector resultado.
+    // Complejidad Computacional: O(v), siendo v el tamaño del vector resultado.
+    for (int i = resultado.size() - 1; i >= 0; i--) { 
 		cout << "(" << resultado[i].x << "," << resultado[i].y << ") ";
 		espacio();
 	}
 
 	espacio();
 }
+
+// -------------------------------------------------- MAIN: DRIVER CODE -------------------------------------------------
 
 int main() {
     
@@ -461,6 +512,7 @@ int main() {
     espacio();
 
     cout << "----- OUTPUT: -----" << endl;
+
     cout << "--- Algoritmo de Kruskal ---" << endl;
     std::vector<std::pair<int, edge> > graph = edges(distancias);
     std::vector<std::pair<int, edge> > mst = kruskal(graph, n);
@@ -468,12 +520,14 @@ int main() {
     printMST(mst, n);
     std::cout << endl;
     
-    cout << "--- TSP (Traveling Salesman Problem) ---" << endl;
+    cout << "--- TSP (Dynamic Programming) ---" << endl;
     std::pair<int, std::string> minHamilton = tsp(distancias);
-    cout << endl << "El camino más corto es: " << minHamilton.second << endl;
+    cout << endl << "El camino mas corto es: " << minHamilton.second << endl;
     cout << "La distancia total es: " << minHamilton.first << endl << endl;
+
     cout << "--- Algoritmo de Ford-Fulkerson ---" << endl;
 	fordFulkerson(flujos,0,n-1);
+    
     cout << "--- Convex Hull - Escaneo de Graham ---" << endl;
     cascaraConvexaGraham(centrales,n);
 
