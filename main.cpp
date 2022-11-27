@@ -83,13 +83,13 @@ void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
     std::cout << "(";
     int previous;
     for (int i = 0; i < matrix.size() - 1; i++) {
-        std::cout << current << ", ";
+        std::cout << char(current + 65) << ", ";
         int next = matrix[current][0] != previous ? matrix[current][0] : matrix[current][1]; 
         previous = current;
         current = next;
     }
 
-    std::cout << current << ")" << std::endl;
+    std::cout << char(current + 65) << ")" << std::endl;
 
     // int cost = 0;
     // for (int i = 0; i < mst.size(); i++) {
@@ -104,17 +104,15 @@ void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
 std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector< std::vector<int> > costs) {
     int size = set.size();
     std::string path;
+    char endC(end + 65);
     //print set
-    std::cout << "Set: ";
     for (int i = 0; i < set.size(); i++) {
-        std::cout << set[i] << " ";
     }
-    std::cout << "End: " << end << std::endl;
-    std::cout << std::endl;
     // If the set has only two elements, return the distance form 0 to the end element.
     if (size == 2) {
-        path = "0 -> " + std::to_string(end) + " -> ";
-        std::cout << "Cost_: " << costs[0][end] << std::endl;
+        path = "A -> ";
+        path += endC;
+        path  += " -> ";
         return std::make_pair(costs[0][end], path);
     }
     // Otherwise, find the minimum cost of the set without the end element and every element of the set plus the distance from the element to the first node.
@@ -129,33 +127,27 @@ std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector<
     }
     
     // Print the new set
-    std::cout << "New set: ";
     for (int i = 0; i < newSet.size(); i++) {
-        std::cout << newSet[i] << " ";
     }
-    std::cout << std::endl;
 
-    std::cout << "Removing: ";
     for (int i = 1; i < size - 1; i++)
     {
-        std::cout << newSet[i] << " ";
     }
-    std::cout << std::endl;
 
     for (int i = 1; i < newSet.size(); i++) {
         std::pair<int, std::string> subPath = pathCost(newSet, newSet[i], costs);
         int cost = subPath.first + costs[newSet[i]][end];
-        std::cout << "Cost: " << subPath.first << " + " << costs[newSet[i]][end] << " = " << cost << std::endl;
         if (minCost == 0 || cost < minCost) {
             minCost = cost;
-            path = subPath.second + std::to_string(end) + " -> ";
+            path = subPath.second;
+            path += endC;
+            path += " -> ";
         }
     }
-    std::cout << "Path: " << path << std::endl;
     return std::make_pair(minCost, path);
 }
 
-std::string tsp(std::vector< std::vector<int> > matrix) {
+std::pair<int, std::string> tsp(std::vector< std::vector<int> > matrix) {
     std::vector<std::pair<int, std::string> > cycleCosts;
     std::vector<int> set;
     for (int i = 0; i < matrix.size(); i++) {
@@ -167,15 +159,13 @@ std::string tsp(std::vector< std::vector<int> > matrix) {
         // The cost of the Hamiltonian cycle is the sum of the minimum cost path and the cost of the edge from the last node to the first node.
         std::pair<int, std::string> subPath = pathCost(set, i, matrix);
         int totalCost = subPath.first + matrix[i][0];
-        std::cout << "Total cost: " << subPath.first << " + " << matrix[i][0] << " = " << totalCost << std::endl;
-        std::cout << "Path: " << subPath.second << "0" << std::endl;
-        cycleCosts.push_back(std::make_pair(totalCost, subPath.second + "0"));
+        cycleCosts.push_back(std::make_pair(totalCost, subPath.second + "A"));
     }
     // Find the minimum cost Hamiltonian cycle.
     sort(cycleCosts.begin(), cycleCosts.end(), [](const std::pair<int, std::string>& a, const std::pair<int, std::string>& b) {
         return a.first < b.first;
     });
-    return cycleCosts[0].second;
+    return cycleCosts[0];
 }
 
 // --------------------------------------------------
@@ -478,8 +468,9 @@ int main() {
     printMST(mst, n);
     
     cout << "--- TSP (Traveling Salesman Problem) ---" << endl;
-    std::string minHamilton = tsp(distancias);
-    cout << "El camino más corto es: " << minHamilton << endl;
+    std::pair<int, std::string> minHamilton = tsp(distancias);
+    cout << "El camino más corto es: " << minHamilton.second << endl;
+    cout << "La distancia total es: " << minHamilton.first << endl;
     cout << "--- Algoritmo de Ford-Fulkerson ---" << endl;
 	fordFulkerson(flujos,0,n-1);
     cout << "--- Convex Hull - Escaneo de Graham ---" << endl;
