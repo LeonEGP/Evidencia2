@@ -462,6 +462,7 @@ void cascaraConvexaGraham(vector<Punto>& puntos, int n) {
 
 // -------------------------------------------------- MAIN: DRIVER CODE -------------------------------------------------
 
+//Función main de ejecución de código, que implementa los algoritmos solución para la Situación Problema de la Actividad Integradora 2.
 int main() {
     
     int n; //Cantidad de Colonias en la Ciudad
