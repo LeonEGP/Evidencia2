@@ -91,23 +91,21 @@ void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
 
     std::cout << char(current + 65) << ")" << std::endl;
 
-    // int cost = 0;
-    // for (int i = 0; i < mst.size(); i++) {
-    //     cost += mst[i].first;
-    // }
-    // std::cout << "Cost: " << cost << std::endl;
+    int cost = 0;
+    for (int i = 0; i < mst.size(); i++) {
+        cost += mst[i].first;
+    }
+    std::cout << "Costo: " << cost << std::endl;
 }
 
 
 // --------------------------------------------------
 
-std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector< std::vector<int> > costs) {
+std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector< std::vector<int> > costs, std::vector<std::pair<int, std::string>> &bitmasks) {
     int size = set.size();
     std::string path;
     char endC(end + 65);
-    //print set
-    for (int i = 0; i < set.size(); i++) {
-    }
+
     // If the set has only two elements, return the distance form 0 to the end element.
     if (size == 2) {
         path = "A -> ";
@@ -118,24 +116,22 @@ std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector<
     // Otherwise, find the minimum cost of the set without the end element and every element of the set plus the distance from the element to the first node.
     int minCost = 0;
 
+    int mask = 0;
     // Remove the end element from the set.
     std::vector<int> newSet;
     for (int i = 0; i < size; i++) {
         if (set[i] != end) {
             newSet.push_back(set[i]);
+            mask += 1 << set[i];
         }
     }
+
+    if (bitmasks[mask].first != 0) {
+        return bitmasks[mask];
+    }
     
-    // Print the new set
-    for (int i = 0; i < newSet.size(); i++) {
-    }
-
-    for (int i = 1; i < size - 1; i++)
-    {
-    }
-
     for (int i = 1; i < newSet.size(); i++) {
-        std::pair<int, std::string> subPath = pathCost(newSet, newSet[i], costs);
+        std::pair<int, std::string> subPath = pathCost(newSet, newSet[i], costs, bitmasks);
         int cost = subPath.first + costs[newSet[i]][end];
         if (minCost == 0 || cost < minCost) {
             minCost = cost;
@@ -144,6 +140,7 @@ std::pair<int, std::string> pathCost(std::vector<int> set, int end, std::vector<
             path += " -> ";
         }
     }
+    bitmasks[mask] = std::make_pair(minCost, path);
     return std::make_pair(minCost, path);
 }
 
@@ -153,11 +150,13 @@ std::pair<int, std::string> tsp(std::vector< std::vector<int> > matrix) {
     for (int i = 0; i < matrix.size(); i++) {
         set.push_back(i);
     }
+    // Generate bitmask vector.
+    std::vector<std::pair<int, std::string> > bitmasks(1 << matrix.size(), std::make_pair(0, ""));
 
     for (int i = 1; i < matrix.size(); i++) {
         // Find minimum cost path starting from vertex 1, passing through every node once and ending at vertex i.
         // The cost of the Hamiltonian cycle is the sum of the minimum cost path and the cost of the edge from the last node to the first node.
-        std::pair<int, std::string> subPath = pathCost(set, i, matrix);
+        std::pair<int, std::string> subPath = pathCost(set, i, matrix, bitmasks);
         int totalCost = subPath.first + matrix[i][0];
         cycleCosts.push_back(std::make_pair(totalCost, subPath.second + "A"));
     }
@@ -465,12 +464,14 @@ int main() {
     cout << "--- Algoritmo de Kruskal ---" << endl;
     std::vector<std::pair<int, edge> > graph = edges(distancias);
     std::vector<std::pair<int, edge> > mst = kruskal(graph, n);
+    std::cout << endl << "MST: ";
     printMST(mst, n);
+    std::cout << endl;
     
     cout << "--- TSP (Traveling Salesman Problem) ---" << endl;
     std::pair<int, std::string> minHamilton = tsp(distancias);
-    cout << "El camino más corto es: " << minHamilton.second << endl;
-    cout << "La distancia total es: " << minHamilton.first << endl;
+    cout << endl << "El camino más corto es: " << minHamilton.second << endl;
+    cout << "La distancia total es: " << minHamilton.first << endl << endl;
     cout << "--- Algoritmo de Ford-Fulkerson ---" << endl;
 	fordFulkerson(flujos,0,n-1);
     cout << "--- Convex Hull - Escaneo de Graham ---" << endl;
