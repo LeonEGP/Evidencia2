@@ -71,38 +71,19 @@ std::vector<std::pair<int, edge> > kruskal(std::vector<std::pair<int, edge> > ed
 // This function prints the output of the MST.
 // Time complexity: O(V) for V: number of vertices.
 void printMST( std::vector<std::pair<int, edge> > mst, int numV) {
-    // matrix of the MST
-    std::vector<std::vector<int> > matrix(numV, std::vector<int>());
-    for (int i = 0; i < mst.size(); i++) {
-        edge e = mst[i].second;
-        matrix[e.first].push_back(e.second);
-        matrix[e.second].push_back(e.first);
+    int size = mst.size();
+    for (int i = 0; i < size - 1; i++)
+    {
+        std::cout << "(" << char(mst[i].second.first + 65) << ", " << char(mst[i].second.second + 65) << "), ";
     }
-
-    // Find a starting node.
-    int current = 0;
-    while (matrix[current].size() != 1 && current < matrix.size()) {
-        current++;
-    }
-
-    // Print the MST.
-    std::cout << "(";
-    int previous;
-    for (int i = 0; i < matrix.size() - 1; i++) {
-        std::cout << char(current + 65) << ", ";
-        int next = matrix[current][0] != previous ? matrix[current][0] : matrix[current][1]; 
-        previous = current;
-        current = next;
-    }
-
-    std::cout << char(current + 65) << ")" << std::endl;
+    std::cout << "(" << char(mst[size - 1].second.first + 65) << ", " << char(mst[size - 1].second.second + 65) << ")" << std::endl;
 
     // Print the cost.
     int cost = 0;
     for (int i = 0; i < mst.size(); i++) {
         cost += mst[i].first;
     }
-    std::cout << "Costo: " << cost << std::endl;
+    std::cout << "El total de kilometros de fibra optica requerida es: " << cost << std::endl;
 }
 
 
@@ -279,7 +260,7 @@ void fordFulkerson(vector<vector<int>>& matriz, int origen, int destino){
     }
 
     espacio();
-    cout << "Flujo Maximo: " << flujoMaximo << endl;
+    cout << "El flujo maximo de información transmisble entre el primer y el último nodo es: " << flujoMaximo << endl;
     espacio();
 
 }
@@ -514,23 +495,29 @@ int main() {
 
     cout << "----- OUTPUT: -----" << endl;
 
+    //El programa debe desplegar cuál es la forma óptima de cablear con fibra óptica conectando colonias de tal forma que se pueda compartir información entre cuales quiera dos colonias.
     cout << "--- Algoritmo de Kruskal ---" << endl;
     std::vector<std::pair<int, edge> > graph = edges(distancias);
     std::vector<std::pair<int, edge> > mst = kruskal(graph, n);
-    std::cout << endl << "MST: ";
+    std::cout << std::endl << "La forma mas optima de conectar todas las colonias con fibra optima en una sola red es: ";
     printMST(mst, n);
-    std::cout << endl;
+    std::cout << "\n\n";
     
+    // Debido a que las ciudades apenas están entrando al mundo tecnológico, se requiere que alguien visite cada colonia para ir a dejar estados de cuenta físicos, publicidad, avisos y notificaciones impresos. por eso se quiere saber ¿cuál es la ruta más corta posible que visita cada colonia exactamente una vez y al finalizar regresa a la colonia origen?
     cout << "--- TSP (Dynamic Programming) ---" << endl;
     std::pair<int, std::string> minHamilton = tsp(distancias);
-    cout << endl << "El camino mas corto es: " << minHamilton.second << endl;
-    cout << "La distancia total es: " << minHamilton.first << endl << endl;
+    cout << endl << "El recorrido mas corto que visita cada colonia y vuelve al origen es: " << minHamilton.second << endl;
+    cout << "La distancia total del recorrido en kilometros es: " << minHamilton.first << "\n\n\n";
 
+    // La empresa quiere conocer el flujo máximo de información del nodo inicial al nodo final. Esto debe desplegarse también en la salida estándar.
     cout << "--- Algoritmo de Ford-Fulkerson ---" << endl;
 	fordFulkerson(flujos,0,n-1);
+    std::cout << std::endl;
     
     cout << "--- Convex Hull - Escaneo de Graham ---" << endl;
+    std::cout << std::endl << "Las centrales de la ciudad se encuentran en los puntos: " << std::endl;
     cascaraConvexaGraham(centrales,n);
+    std::cout << std::endl;
 
     return 0;
 }
